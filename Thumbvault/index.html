@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>Thumbvault — Deleted YouTube Thumbnail Finder</title>
+<meta name="title" content="Get Deleted YouTube Thumbnails"/>
+<meta name="description" content="Paste a dead YouTube link. Thumbvault scans 60+ defunct image hosts on the Wayback Machine for its thumbnail."/>
+<meta name="keywords" content="archived, privated, wayback, youtube, thumbnail"/>
+
+<link rel="icon" href="favicon.ico" sizes="any"/>
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png"/>
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png"/>
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png"/>
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png"/>
+
+<meta property="og:title" content="Thumbvault — Deleted YouTube Thumbnail Finder"/>
+<meta property="og:description" content="Paste a YouTube link or video ID. We scan 60+ image hosts and the Wayback Machine for its thumbnail."/>
+<meta property="og:image" content="og-image.png"/>
+<meta property="og:type" content="website"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="Thumbvault — Deleted YouTube Thumbnail Finder"/>
+<meta name="twitter:description" content="Paste a YouTube link or video ID. We scan 60+ image hosts and the Wayback Machine for its thumbnail."/>
+<meta name="twitter:image" content="og-image.png"/>
+<link rel="image_src" type="image/png" href="og-image.png"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Roboto+Flex:opsz,wght@8..144,400..700&family=Google+Sans+Text:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+/* ---------------------------------------------------------
+   Material 3 — blue dynamic-color-style tonal palette
+   --------------------------------------------------------- */
+:root{
+  color-scheme: light dark;
+
+  /* Primary (blue) tonal ramp */
+  --md-primary:#0B57D0;
+  --md-on-primary:#FFFFFF;
+  --md-primary-container:#D3E3FD;
+  --md-on-primary-container:#041E49;
+
+  /* Secondary (muted blue-grey) */
+  --md-secondary:#565F71;
+  --md-secondary-container:#DAE2F9;
+  --md-on-secondary-container:#131C2B;
+
+  /* Tertiary accent — used for "live on YouTube" found state */
+  --md-tertiary:#2E7D52;
+  --md-tertiary-container:#B6ECC7;
+  --md-on-tertiary-container:#002110;
+
+  /* Error / status */
+  --md-error:#B3261E;
+
+  /* Neutral surfaces */
+  --md-surface:#F8F9FE;
+  --md-surface-dim:#D9DAE0;
+  --md-surface-bright:#F8F9FE;
+  --md-surface-container-lowest:#FFFFFF;
+  --md-surface-container-low:#F2F3FA;
+  --md-surface-container:#ECEEF4;
+  --md-surface-container-high:#E6E8EF;
+  --md-surface-container-highest:#E0E2E9;
+  --md-on-surface:#1A1C1E;
+  --md-on-surface-variant:#43474E;
+  --md-outline:#73777F;
+  --md-outline-variant:#C3C6CF;
+
+  --md-elev-1: 0 1px 2px 0 rgba(0,0,0,0.30), 0 1px 3px 1px rgba(0,0,0,0.15);
+  --md-elev-2: 0 1px 2px 0 rgba(0,0,0,0.30), 0 2px 6px 2px rgba(0,0,0,0.15);
+  --md-elev-3: 0 1px 3px 0 rgba(0,0,0,0.30), 0 4px 8px 3px rgba(0,0,0,0.15);
+}
+
+:root:not([data-theme="light"]){
+  @media (prefers-color-scheme: dark){
+    --md-primary:#AAC7FF;
+    --md-on-primary:#002E69;
+    --md-primary-container:#0842A0;
+    --md-on-primary-container:#D3E3FD;
+
+    --md-secondary:#BEC6DC;
+    --md-secondary-container:#3E4759;
+    --md-on-secondary-container:#DAE2F9;
+
+    --md-tertiary:#9BD0AE;
+    --md-tertiary-container:#0F5132;
+    --md-on-tertiary-container:#B6ECC7;
+
+    --md-error:#F2B8B5;
+
+    --md-surface:#111318;
+    --md-surface-dim:#111318;
+    --md-surface-bright:#37393E;
+    --md-surface-container-lowest:#0C0E13;
+    --md-surface-container-low:#1A1C1E;
+    --md-surface-container:#1E2022;
+    --md-surface-container-high:#282A2D;
+    --md-surface-container-highest:#333538;
+    --md-on-surface:#E2E2E9;
+    --md-on-surface-variant:#C3C6CF;
+    --md-outline:#8D9199;
+    --md-outline-variant:#43474E;
+  }
+}
+:root[data-theme="dark"]{
+  --md-primary:#AAC7FF;
+  --md-on-primary:#002E69;
+  --md-primary-container:#0842A0;
+  --md-on-primary-container:#D3E3FD;
+
+  --md-secondary:#BEC6DC;
+  --md-secondary-container:#3E4759;
+  --md-on-secondary-container:#DAE2F9;
+
+  --md-tertiary:#9BD0AE;
+  --md-tertiary-container:#0F5132;
+  --md-on-tertiary-container:#B6ECC7;
+
+  --md-error:#F2B8B5;
+
+  --md-surface:#111318;
+  --md-surface-dim:#111318;
+  --md-surface-bright:#37393E;
+  --md-surface-container-lowest:#0C0E13;
+  --md-surface-container-low:#1A1C1E;
+  --md-surface-container:#1E2022;
+  --md-surface-container-high:#282A2D;
+  --md-surface-container-highest:#333538;
+  --md-on-surface:#E2E2E9;
+  --md-on-surface-variant:#C3C6CF;
+  --md-outline:#8D9199;
+  --md-outline-variant:#43474E;
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--md-surface);
+  color:var(--md-on-surface);
+  font-family:"Google Sans Text","Roboto",system-ui,sans-serif;
+  min-height:100vh;
+  min-height:100dvh;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  -webkit-font-smoothing:antialiased;
+}
+
+a{ color:inherit; }
+::selection{ background:var(--md-primary-container); color:var(--md-on-primary-container); }
+
+/* ---------- Top app bar ---------- */
+.topbar{
+  width:100%;
+  display:flex;
+  justify-content:center;
+  background:var(--md-surface);
+  border-bottom:1px solid var(--md-outline-variant);
+}
+.topbar-inner{
+  width:100%;
+  max-width:900px;
+  padding:14px 20px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.app-icon{
+  width:36px; height:36px;
+  border-radius:10px;
+  background:var(--md-primary-container);
+  color:var(--md-on-primary-container);
+  display:flex; align-items:center; justify-content:center;
+  flex:none;
+}
+.app-icon svg{ width:20px; height:20px; }
+.app-title{
+  font-family:"Roboto",sans-serif;
+  font-weight:500;
+  font-size:19px;
+  letter-spacing:0;
+  color:var(--md-on-surface);
+}
+
+/* ---------- Main ---------- */
+.wrap{
+  width:100%;
+  max-width:900px;
+  padding:40px 20px 72px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+.hero{
+  text-align:center;
+  max-width:560px;
+  margin-bottom:32px;
+}
+
+h1{
+  font-family:"Roboto",sans-serif;
+  font-weight:400;
+  font-size:clamp(30px, 6vw, 45px);
+  line-height:1.15;
+  letter-spacing:0;
+  color:var(--md-on-surface);
+  margin:0 0 12px;
+}
+h1 .accent{ color:var(--md-primary); font-weight:600; }
+
+.tagline{
+  font-family:"Roboto",sans-serif;
+  font-weight:400;
+  font-size:15px;
+  line-height:1.55;
+  color:var(--md-on-surface-variant);
+  margin:0;
+}
+
+/* ---------- Search bar (M3 "Search bar" component) ---------- */
+.search-shell{
+  width:100%;
+  max-width:560px;
+  position:relative;
+  display:flex;
+  align-items:center;
+  background:var(--md-surface-container-high);
+  border-radius:28px;
+  box-shadow:var(--md-elev-1);
+  padding:4px 4px 4px 20px;
+  transition:box-shadow .2s ease;
+}
+.search-shell:focus-within{
+  box-shadow:var(--md-elev-2);
+}
+
+.search-icon{
+  width:20px; height:20px;
+  color:var(--md-on-surface-variant);
+  flex:none;
+}
+
+#search{
+  flex:1;
+  height:48px;
+  background:transparent;
+  border:none;
+  color:var(--md-on-surface);
+  font-family:"Roboto",sans-serif;
+  font-size:16px;
+  padding:0 12px;
+  outline:none;
+}
+#search::placeholder{ color:var(--md-on-surface-variant); }
+
+.go-btn{
+  height:44px; width:44px;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--md-primary);
+  color:var(--md-on-primary);
+  border:none;
+  border-radius:50%;
+  cursor:pointer;
+  flex:none;
+  transition:box-shadow .15s ease, filter .15s ease;
+}
+.go-btn:hover{ filter:brightness(1.06); box-shadow:var(--md-elev-1); }
+.go-btn:active{ filter:brightness(0.95); }
+.go-btn:focus-visible{ outline:2px solid var(--md-primary); outline-offset:3px; }
+.go-btn svg{ width:20px; height:20px; }
+
+/* ---------- Status row ---------- */
+.status-row{
+  width:100%;
+  max-width:560px;
+  margin-top:16px;
+  min-height:20px;
+  font-family:"Roboto",sans-serif;
+  font-size:13px;
+  font-weight:500;
+  color:var(--md-on-surface-variant);
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding-left:4px;
+}
+
+.status-dot{
+  width:8px; height:8px; border-radius:50%;
+  background:var(--md-outline);
+  flex:none;
+}
+.status-row.active .status-dot{
+  background:var(--md-primary);
+  animation:pulse 1.1s ease-in-out infinite;
+}
+@keyframes pulse{
+  0%,100%{ opacity:1; transform:scale(1); }
+  50%{ opacity:.4; transform:scale(.7); }
+}
+
+/* ---------- Results ---------- */
+#results{
+  width:100%;
+  margin-top:40px;
+  display:flex;
+  flex-direction:column;
+  gap:32px;
+}
+#results.invis{ display:none; }
+
+.section{
+  opacity:0;
+  animation:fadeIn .35s ease forwards;
+}
+@keyframes fadeIn{ to{ opacity:1; } }
+
+.section-head{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:16px;
+}
+
+.section-head .badge{
+  width:28px; height:28px;
+  border-radius:8px;
+  display:flex; align-items:center; justify-content:center;
+  flex:none;
+}
+.section-head .badge svg{ width:16px; height:16px; }
+
+#youtube .badge{ background:var(--md-tertiary-container); color:var(--md-on-tertiary-container); }
+#wayback .badge{ background:var(--md-primary-container); color:var(--md-on-primary-container); }
+
+.section-head h2{
+  font-family:"Roboto",sans-serif;
+  font-weight:500;
+  font-size:15px;
+  color:var(--md-on-surface);
+  margin:0;
+}
+
+.section-head .count{
+  font-family:"Roboto",sans-serif;
+  font-size:12px;
+  font-weight:500;
+  color:var(--md-on-surface-variant);
+  margin-left:auto;
+  background:var(--md-surface-container-high);
+  padding:4px 10px;
+  border-radius:8px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(150px, 1fr));
+  gap:14px;
+}
+
+.thumb-card{
+  position:relative;
+  background:var(--md-surface-container-lowest);
+  border-radius:16px;
+  overflow:hidden;
+  opacity:0;
+  animation:fadeIn .25s ease forwards;
+  aspect-ratio:4/3;
+  box-shadow:var(--md-elev-1);
+  transition:box-shadow .2s ease, transform .2s ease;
+}
+.thumb-card:hover{
+  box-shadow:var(--md-elev-3);
+  transform:translateY(-2px);
+}
+
+.thumb-card img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+
+.cdx-link{
+  position:absolute;
+  top:8px; right:8px;
+  width:28px; height:28px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.92);
+  color:var(--md-primary);
+  display:flex; align-items:center; justify-content:center;
+  text-decoration:none;
+  font-size:14px;
+  box-shadow:var(--md-elev-1);
+  transition:background .15s ease, transform .15s ease;
+}
+.cdx-link:hover{ background:#fff; transform:scale(1.07); }
+.cdx-link:focus-visible{ outline:2px solid var(--md-primary); outline-offset:2px; }
+
+/* ---------- Footer ---------- */
+.foot{
+  margin-top:56px;
+  font-family:"Roboto",sans-serif;
+  font-size:12px;
+  color:var(--md-on-surface-variant);
+  text-align:center;
+}
+
+.invis{ display:none !important; }
+
+@media (max-width: 560px){
+  .wrap{ padding:28px 16px 56px; }
+  #search{ height:46px; font-size:15px; }
+  .grid{ grid-template-columns:repeat(auto-fill, minmax(42vw, 1fr)); }
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="app-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="5" width="20" height="14" rx="2.5"/>
+        <path d="M10 9.5v5l4.5-2.5L10 9.5Z" fill="currentColor" stroke="none"/>
+      </svg>
+    </div>
+    <span class="app-title">Thumbvault</span>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="hero">
+    <h1>Find the <span class="accent">thumbnail</span> that disappeared</h1>
+    <p class="tagline">Paste a YouTube link or video ID. We scan 60+ image hosts and the Wayback Machine for its thumbnail.</p>
+  </div>
+
+  <div class="search-shell">
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="11" cy="11" r="7"/>
+      <path d="m21 21-4.35-4.35"/>
+    </svg>
+    <input id="search" placeholder="youtube.com/watch?v=… or video ID" autocomplete="off" spellcheck="false"/>
+    <button class="go-btn" id="go-btn" type="button" aria-label="Search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+        <path d="M5 12h14M13 6l6 6-6 6"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="status-row" id="status-row">
+    <span class="status-dot"></span>
+    <span id="output">Scans 60+ domains on the Wayback Machine.</span>
+  </div>
+
+  <div id="results" class="invis">
+    <div id="youtube" class="section invis">
+      <div class="section-head">
+        <span class="badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>
+        </span>
+        <h2>Live on YouTube</h2>
+        <span class="count" id="youtube-count"></span>
+      </div>
+      <div class="grid" id="youtube-grid"></div>
+    </div>
+
+    <div id="wayback" class="section invis">
+      <div class="section-head">
+        <span class="badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>
+        </span>
+        <h2>Recovered from Archive.org</h2>
+        <span class="count" id="wayback-count"></span>
+      </div>
+      <div class="grid" id="wayback-grid"></div>
+    </div>
+  </div>
+
+  <div id="preloader" style="display:none;"></div>
+
+</div>
+
+<script>
+const SEARCH_BAR = document.getElementById("search");
+const GO_BTN = document.getElementById("go-btn");
+const OUTPUT = document.getElementById("output");
+const STATUS_ROW = document.getElementById("status-row");
+const RESULTS = document.getElementById("results");
+const YT_SECTION = document.getElementById("youtube");
+const WB_SECTION = document.getElementById("wayback");
+const YT_GRID = document.getElementById("youtube-grid");
+const WB_GRID = document.getElementById("wayback-grid");
+const YT_COUNT = document.getElementById("youtube-count");
+const WB_COUNT = document.getElementById("wayback-count");
+const PRELOADER = document.getElementById("preloader");
+
+const GRIDS = { youtube: YT_GRID, wayback: WB_GRID };
+const SECTIONS = { youtube: YT_SECTION, wayback: WB_SECTION };
+const COUNTS = { youtube: YT_COUNT, wayback: WB_COUNT };
+
+const MAX_CONNS = 5;
+const QUALITIES = ["sd", "mq", "hq", "maxres"];
+const DOMAINS = [
+  "img.youtube.com",
+  "i.ytimg.com",
+  "i1.ytimg.com",
+  "i2.ytimg.com",
+  "i3.ytimg.com",
+  "i4.ytimg.com",
+  "i9.ytimg.com",
+  "s.ytimg.com",
+  "s1.ytimg.com",
+  "s2.ytimg.com",
+  "s3.ytimg.com",
+  "s4.ytimg.com",
+  "0.gvt0.com",
+  "1.gvt0.com",
+  "2.gvt0.com",
+  "3.gvt0.com"
+];
+const OLD_DOMAINS = [
+  "sjc-static1.sjc.youtube.com",
+  "sjc-static2.sjc.youtube.com",
+  "sjc-static3.sjc.youtube.com",
+  "sjc-static4.sjc.youtube.com",
+  "sjc-static5.sjc.youtube.com",
+  "sjc-static6.sjc.youtube.com",
+  "sjc-static7.sjc.youtube.com",
+  "sjc-static8.sjc.youtube.com",
+  "sjc-static9.sjc.youtube.com",
+  "sjc-static10.sjc.youtube.com",
+  "sjc-static11.sjc.youtube.com",
+  "sjc-static12.sjc.youtube.com",
+  "sjc-static13.sjc.youtube.com",
+  "sjc-static14.sjc.youtube.com",
+  "sjc-static15.sjc.youtube.com",
+  "sjc-static16.sjc.youtube.com",
+  "sjc-static17.sjc.youtube.com",
+  "sjc-static18.sjc.youtube.com",
+  "sjc-static19.sjc.youtube.com",
+  "sjc-static21.sjc.youtube.com",
+  "sjc-static22.sjc.youtube.com",
+  "sjc-static23.sjc.youtube.com",
+  "sjc-static27.sjc.youtube.com",
+  "sjc-static28.sjc.youtube.com",
+  "sjc-static29.sjc.youtube.com",
+  "sjc-static30.sjc.youtube.com",
+  "sjc-static31.sjc.youtube.com",
+  "sjc-static34.sjc.youtube.com",
+  "sjc-static35.sjc.youtube.com",
+  "sjl-static1.sjl.youtube.com",
+  "sjl-static2.sjl.youtube.com",
+  "sjl-static3.sjl.youtube.com",
+  "sjl-static4.sjl.youtube.com",
+  "sjl-static5.sjl.youtube.com",
+  "sjl-static6.sjl.youtube.com",
+  "sjl-static7.sjl.youtube.com",
+  "sjl-static8.sjl.youtube.com",
+  "sjl-static9.sjl.youtube.com",
+  "sjl-static10.sjl.youtube.com",
+  "sjl-static11.sjl.youtube.com",
+  "sjl-static12.sjl.youtube.com",
+  "sjl-static13.sjl.youtube.com",
+  "sjl-static14.sjl.youtube.com",
+  "sjl-static15.sjl.youtube.com",
+  "sjl-static16.sjl.youtube.com"
+];
+const STATIC_DOMAINS = [
+  "static.youtube.com",
+  "static08.youtube.com"
+];
+const THUMB_TYPES = [
+  "vi",
+  "vi_webp"
+];
+const AVAIL_TEMPLATE = "https://archive.org/wayback/available?url=";
+
+let openConns = 0;
+let lastSearch = null;
+let apiBlocked = false;
+
+// Monotonically increasing search generation. Any in-flight request from a
+// previous search checks its captured generation against the current one
+// before touching the DOM, so stale results from an old search can never
+// render after the user starts a new one.
+let searchGen = 0;
+
+function setStatus(msg, active) {
+  OUTPUT.innerHTML = msg;
+  STATUS_ROW.classList.toggle("active", !!active);
+}
+
+function clearResults() {
+  YT_GRID.innerHTML = "";
+  WB_GRID.innerHTML = "";
+  PRELOADER.innerHTML = "";
+  YT_COUNT.textContent = "";
+  WB_COUNT.textContent = "";
+  YT_SECTION.className = "section invis";
+  WB_SECTION.className = "section invis";
+  RESULTS.className = "invis";
+}
+
+function bumpCount(group) {
+  const el = COUNTS[group];
+  const current = parseInt(el.dataset.n || "0", 10) + 1;
+  el.dataset.n = current;
+  el.textContent = current + (current === 1 ? " found" : " found");
+}
+
+function verifyConn(func, args) {
+  if (openConns >= MAX_CONNS) {
+    setTimeout(func, 100, ...args);
+  } else {
+    openConns += 1;
+    return true;
+  }
+}
+
+function createThumbnail(url, group, cdxURL, gen) {
+  if (cdxURL) {
+    if (!verifyConn(createThumbnail, arguments)) {
+      return;
+    }
+  }
+
+  // Stale search guard: a previous search's in-flight request landed late.
+  if (gen !== searchGen) {
+    if (cdxURL) openConns -= 1;
+    return;
+  }
+
+  const grid = GRIDS[group];
+  const section = SECTIONS[group];
+  const container = document.createElement("div");
+  container.className = "thumb-card";
+  const img = document.createElement("img");
+  img.loading = "lazy";
+
+  img.onload = function () {
+    openConns -= 1;
+    if (gen !== searchGen) return;
+    RESULTS.className = "";
+    section.className = "section";
+    grid.append(container);
+    bumpCount(group);
+  };
+
+  img.onerror = function () {
+    openConns -= 1;
+    img.remove();
+  };
+
+  img.src = url;
+  container.append(img);
+
+  if (cdxURL) {
+    const label = document.createElement("a");
+    label.href = "https://web.archive.org/web/*/" + cdxURL.split("://")[2];
+    label.target = "_blank";
+    label.rel = "noopener";
+    label.title = "See more from this domain";
+    label.innerHTML = "↗";
+    label.className = "cdx-link";
+    container.append(label);
+  }
+
+  PRELOADER.append(container);
+}
+
+function parseCDX(url, content, gen) {
+  if (gen !== searchGen) return;
+
+  const cdx = JSON.parse(content);
+
+  if ("closest" in cdx["archived_snapshots"]) {
+    const thumb_data = cdx["archived_snapshots"]["closest"];
+
+    if (thumb_data["status"] == "200") {
+      createThumbnail(
+        thumb_data["url"].replace(/^https*:\/\/web.archive.org\/web\/(\d{14})/, "https://web.archive.org/web/$1id_"),
+        "wayback",
+        url,
+        gen
+      );
+    }
+  }
+}
+
+async function requestURL(url, group, method, gen) {
+  if (!verifyConn(requestURL, arguments)) {
+    return;
+  }
+
+  if (method) {
+    try {
+      const response = await fetch(url, { method: method });
+      openConns -= 1;
+
+      if (gen !== searchGen) return;
+
+      if (!response.ok) {
+        throw new Error(`${response.status}`);
+      }
+
+      switch (group) {
+        case "wayback":
+          parseCDX(url, await response.text(), gen);
+          break;
+        case "youtube":
+          createThumbnail(url, group, null, gen);
+        default:
+          return await response.text();
+      }
+    } catch (error) {
+      openConns -= 1;
+      if (gen !== searchGen) return;
+
+      if (error.toString().includes("Failed to fetch")) {
+        setStatus("Too many requests. Close any Wayback Machine tabs and try again later.", false);
+      } else if (error != "Error: 404") {
+        console.error("Request error:", error);
+      }
+    }
+  } else {
+    createThumbnail(url, group, null, gen);
+  }
+}
+
+let totalDelay = 0;
+
+function delayedFetch(url, group, delay, method, gen) {
+  setTimeout(() => {
+    if (gen !== searchGen) return;
+    requestURL(url, group, method, gen);
+  }, totalDelay);
+
+  totalDelay += delay;
+}
+
+function prefireMessage(msg, gen) {
+  setTimeout(() => {
+    if (gen !== searchGen) return;
+    setStatus(msg, true);
+  }, totalDelay);
+}
+
+function checkIfFinished(gen) {
+  if (gen !== searchGen) return;
+
+  if (openConns > 0) {
+    setTimeout(() => checkIfFinished(gen), 100);
+    return;
+  }
+
+  const foundAny = YT_GRID.children.length > 0 || WB_GRID.children.length > 0;
+
+  if (!foundAny) {
+    setStatus("No surviving thumbnails found for this video.", false);
+  } else if (apiBlocked) {
+    setStatus("Done — API limited for some post-2007 thumbnails, try again later for a fuller scan.", false);
+  } else {
+    setStatus("Scan complete.", false);
+  }
+}
+
+function grabFrames(domain_list, video, dir, ext, addDefault, gen) {
+  for (const domain of domain_list) {
+    prefireMessage(`Checking ${domain} on the Wayback Machine…`, gen);
+
+    if (addDefault) {
+      for (const q of ["", ...QUALITIES]) {
+        delayedFetch(`https://web.archive.org/web/0id_/http://${domain}/${dir}/${video}/${q}default.${ext}`, "wayback", 100, null, gen);
+
+        for (let i = 0; i <= 3; i++) {
+          delayedFetch(`https://web.archive.org/web/0id_/http://${domain}/${dir}/${video}/${q}${i}.${ext}`, "wayback", 100, null, gen);
+        }
+      }
+    } else {
+      for (let i = 0; i <= 3; i++) {
+        delayedFetch(`https://web.archive.org/web/0id_/http://${domain}/${dir}/${video}/${i}.${ext}`, "wayback", 100, null, gen);
+      }
+    }
+  }
+}
+
+function triggerSearch(searchValue, prefix, gen) {
+  totalDelay = 0;
+
+  let video = "/" + searchValue + "/";
+  const matchData = video.match(/\W([A-Za-z0-9_-]{10}[AEIMQUYcgkosw048])\W/);
+
+  if (matchData) {
+    video = matchData[1];
+
+    setStatus("Checking YouTube…", true);
+
+    requestURL(`https://i.ytimg.com/vi/${video}/frame0.jpg`, "youtube", "HEAD", gen);
+
+    for (const q of QUALITIES) {
+      for (let i = 1; i <= 3; i++) {
+        requestURL(`https://i.ytimg.com/vi/${video}/${q}${i}.jpg`, "youtube", "HEAD", gen);
+      }
+    }
+
+    if (apiBlocked) {
+      grabFrames(DOMAINS, video, "vi", "jpg", true, gen);
+      grabFrames(DOMAINS, video, "vi_webp", "webp", true, gen);
+    } else {
+      for (const domain of DOMAINS) {
+        prefireMessage(`Checking ${domain} on the Wayback Machine…`, gen);
+        for (const format of THUMB_TYPES) {
+          delayedFetch(AVAIL_TEMPLATE + prefix + `${domain}/${format}/${video}/*`, "wayback", 750, "GET", gen);
+        }
+      }
+
+      prefireMessage("Checking i9.ytimg.com on the Wayback Machine…", gen);
+      delayedFetch(AVAIL_TEMPLATE + prefix + `i9.ytimg.com/vi_blogger/${video}/*`, "wayback", 750, "GET", gen);
+    }
+
+    grabFrames(OLD_DOMAINS, video, "vi", "jpg", false, gen);
+
+    for (const domain of STATIC_DOMAINS) {
+      prefireMessage(`Checking ${domain} on the Wayback Machine…`, gen);
+      delayedFetch(`https://web.archive.org/web/0id_/http://${domain}/get_still.php?video_id=${video}`, "wayback", 100, null, gen);
+      for (let i = 1; i <= 3; i++) {
+        delayedFetch(`https://web.archive.org/web/0id_/http://${domain}/get_still.php?video_id=${video}&still_id=${i}`, "wayback", 100, null, gen);
+      }
+    }
+
+    setTimeout(() => checkIfFinished(gen), totalDelay);
+  } else {
+    setStatus("That doesn't look like a valid YouTube URL or video ID.", false);
+  }
+}
+
+// Ensure a verified archive is present - otherwise, user is rate-limited (no results).
+// Strangely, changing URLs fixes this. Since a URL's protocol is stripped on the backend,
+// changing it fixes the problem. Any protocol is allowed, as long as it begins with a letter.
+async function confirmSearch(searchValue) {
+  const trimmed = (searchValue || "").trim();
+  if (!trimmed) return;
+
+  // New search: bump generation and hard-clear all prior results immediately.
+  searchGen += 1;
+  const gen = searchGen;
+  openConns = 0;
+  totalDelay = 0;
+  apiBlocked = false;
+  clearResults();
+
+  const protocol = `a${Math.floor(Math.random() * 100).toString().padStart(2, "0")}://`;
+  setStatus("Verifying archive access…", true);
+
+  const verifyAPI = await requestURL(`https://archive.org/wayback/available?url=${protocol}i1.ytimg.com/vi/TPAWpHG3RWY/*`, "none", "GET", gen);
+
+  if (gen !== searchGen) return;
+
+  if (verifyAPI) {
+    apiBlocked = !verifyAPI.includes("closest");
+  }
+
+  triggerSearch(trimmed, protocol, gen);
+}
+
+SEARCH_BAR.addEventListener("keydown", function (event) {
+  if (event.key === "Enter") {
+    confirmSearch(SEARCH_BAR.value);
+  }
+});
+
+GO_BTN.addEventListener("click", function () {
+  confirmSearch(SEARCH_BAR.value);
+});
+
+</script>
+
+</body>
+</html>
