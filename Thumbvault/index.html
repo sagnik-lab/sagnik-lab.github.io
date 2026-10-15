@@ -15,7 +15,8 @@
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png"/>
 
 <meta property="og:title" content="Thumbvault — Deleted YouTube Thumbnail Finder"/>
-<meta property="og:description" content="Paste a YouTube link or video ID. We scan 60+ image hosts and<meta property="og:image" content="https://sagnik-lab.github.io/Thumbvault/og-image.png"/>
+<meta property="og:description" content="Paste a YouTube link or video ID. We scan 60+ image hosts and the Wayback Machine for its thumbnail."/>
+<meta property="og:image" content="https://sagnik-lab.github.io/Thumbvault/og-image.png"/>
 <meta property="og:type" content="website"/>
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:title" content="Thumbvault — Deleted YouTube Thumbnail Finder"/>
@@ -620,7 +621,14 @@ function bumpCount(group) {
 
 function verifyConn(func, args) {
   if (openConns >= MAX_CONNS) {
-    setTimeout(func, 100, ...args);
+    const gen = args[args.length - 1];
+    setTimeout(() => {
+      // Drop the retry if a newer search has started in the meantime —
+      // otherwise a throttled retry from a stale search can still consume
+      // a connection slot the current search's checkIfFinished never expects.
+      if (gen !== searchGen) return;
+      func(...args);
+    }, 100);
   } else {
     openConns += 1;
     return true;
@@ -647,7 +655,11 @@ function createThumbnail(url, group, cdxURL, gen) {
   const img = document.createElement("img");
   img.loading = "lazy";
 
+  let settled = false;
+
   img.onload = function () {
+    if (settled) return;
+    settled = true;
     openConns -= 1;
     if (gen !== searchGen) return;
     RESULTS.className = "";
@@ -657,9 +669,20 @@ function createThumbnail(url, group, cdxURL, gen) {
   };
 
   img.onerror = function () {
+    if (settled) return;
+    settled = true;
     openConns -= 1;
     img.remove();
   };
+
+  // Stuck-connection safety valve: if neither onload nor onerror ever fires
+  // (dropped connection, silent CORS failure, browser request cap), this
+  // force-releases the slot so the shared connection pool can't deadlock
+  // and freeze the rest of the scan.
+  setTimeout(() => {
+    if (settled) return;
+    img.onerror();
+  }, 8000);
 
   img.src = url;
   container.append(img);
@@ -703,9 +726,23 @@ async function requestURL(url, group, method, gen) {
   }
 
   if (method) {
-    try {
-      const response = await fetch(url, { method: method });
+    // Fetch safety valve: a hung network request (dropped connection,
+    // stalled proxy) would otherwise never resolve and permanently hold a
+    // connection slot, freezing the whole scan the same way a stuck image
+    // load would.
+    const controller = new AbortController();
+    const abortTimer = setTimeout(() => controller.abort(), 10000);
+    let released = false;
+    const release = () => {
+      if (released) return;
+      released = true;
+      clearTimeout(abortTimer);
       openConns -= 1;
+    };
+
+    try {
+      const response = await fetch(url, { method: method, signal: controller.signal });
+      release();
 
       if (gen !== searchGen) return;
 
@@ -719,14 +756,17 @@ async function requestURL(url, group, method, gen) {
           break;
         case "youtube":
           createThumbnail(url, group, null, gen);
+          break;
         default:
           return await response.text();
       }
     } catch (error) {
-      openConns -= 1;
+      release();
       if (gen !== searchGen) return;
 
-      if (error.toString().includes("Failed to fetch")) {
+      if (error.name === "AbortError") {
+        // Silently dropped — treat like a 404, no surviving thumbnail here.
+      } else if (error.toString().includes("Failed to fetch")) {
         setStatus("Too many requests. Close any Wayback Machine tabs and try again later.", false);
       } else if (error != "Error: 404") {
         console.error("Request error:", error);
