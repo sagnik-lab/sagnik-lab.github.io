@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>Sagnik Lab — Projects</title>
+<meta name="description" content="A collection of small web tools and experiments."/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Google+Sans+Text:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  color-scheme: light dark;
+  --md-primary:#0B57D0;
+  --md-on-primary:#FFFFFF;
+  --md-primary-container:#D3E3FD;
+  --md-on-primary-container:#041E49;
+  --md-surface:#F8F9FE;
+  --md-surface-container-lowest:#FFFFFF;
+  --md-surface-container-low:#F2F3FA;
+  --md-surface-container:#ECEEF4;
+  --md-surface-container-high:#E6E8EF;
+  --md-on-surface:#1A1C1E;
+  --md-on-surface-variant:#43474E;
+  --md-outline:#73777F;
+  --md-outline-variant:#C3C6CF;
+  --md-elev-1: 0 1px 2px 0 rgba(0,0,0,0.30), 0 1px 3px 1px rgba(0,0,0,0.15);
+  --md-elev-2: 0 1px 2px 0 rgba(0,0,0,0.30), 0 2px 6px 2px rgba(0,0,0,0.15);
+  --md-elev-3: 0 1px 3px 0 rgba(0,0,0,0.30), 0 4px 8px 3px rgba(0,0,0,0.15);
+}
+:root:not([data-theme="light"]){
+  @media (prefers-color-scheme: dark){
+    --md-primary:#AAC7FF;
+    --md-on-primary:#002E69;
+    --md-primary-container:#0842A0;
+    --md-on-primary-container:#D3E3FD;
+    --md-surface:#111318;
+    --md-surface-container-lowest:#0C0E13;
+    --md-surface-container-low:#1A1C1E;
+    --md-surface-container:#1E2022;
+    --md-surface-container-high:#282A2D;
+    --md-on-surface:#E2E2E9;
+    --md-on-surface-variant:#C3C6CF;
+    --md-outline:#8D9199;
+    --md-outline-variant:#43474E;
+  }
+}
+:root[data-theme="dark"]{
+  --md-primary:#AAC7FF;
+  --md-on-primary:#002E69;
+  --md-primary-container:#0842A0;
+  --md-on-primary-container:#D3E3FD;
+  --md-surface:#111318;
+  --md-surface-container-lowest:#0C0E13;
+  --md-surface-container-low:#1A1C1E;
+  --md-surface-container:#1E2022;
+  --md-surface-container-high:#282A2D;
+  --md-on-surface:#E2E2E9;
+  --md-on-surface-variant:#C3C6CF;
+  --md-outline:#8D9199;
+  --md-outline-variant:#43474E;
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--md-surface);
+  color:var(--md-on-surface);
+  font-family:"Google Sans Text","Roboto",system-ui,sans-serif;
+  min-height:100vh;
+  min-height:100dvh;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  -webkit-font-smoothing:antialiased;
+}
+a{ color:inherit; text-decoration:none; }
+
+.topbar{
+  width:100%;
+  display:flex;
+  justify-content:center;
+  background:var(--md-surface);
+  border-bottom:1px solid var(--md-outline-variant);
+}
+.topbar-inner{
+  width:100%;
+  max-width:1000px;
+  padding:16px 20px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.app-icon{
+  width:36px; height:36px;
+  border-radius:10px;
+  background:var(--md-primary-container);
+  color:var(--md-on-primary-container);
+  display:flex; align-items:center; justify-content:center;
+  flex:none;
+  font-weight:600;
+  font-size:15px;
+}
+.app-title{
+  font-family:"Roboto",sans-serif;
+  font-weight:500;
+  font-size:19px;
+  color:var(--md-on-surface);
+}
+
+.wrap{
+  width:100%;
+  max-width:1000px;
+  padding:48px 20px 80px;
+}
+
+.hero{
+  text-align:center;
+  max-width:600px;
+  margin:0 auto 48px;
+}
+h1{
+  font-family:"Roboto",sans-serif;
+  font-weight:400;
+  font-size:clamp(30px, 5.5vw, 42px);
+  line-height:1.15;
+  margin:0 0 12px;
+}
+.tagline{
+  font-size:15px;
+  line-height:1.55;
+  color:var(--md-on-surface-variant);
+  margin:0;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));
+  gap:20px;
+}
+
+.card{
+  background:var(--md-surface-container-low);
+  border-radius:20px;
+  padding:24px;
+  box-shadow:var(--md-elev-1);
+  transition:box-shadow .2s ease, transform .2s ease;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+.card:hover{
+  box-shadow:var(--md-elev-3);
+  transform:translateY(-3px);
+}
+
+.card-top{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.dp{
+  width:56px; height:56px;
+  border-radius:16px;
+  object-fit:cover;
+  background:var(--md-surface-container-high);
+  flex:none;
+}
+.dp-fallback{
+  width:56px; height:56px;
+  border-radius:16px;
+  background:var(--md-primary-container);
+  color:var(--md-on-primary-container);
+  display:flex; align-items:center; justify-content:center;
+  font-weight:600;
+  font-size:20px;
+  flex:none;
+}
+
+.card-title{
+  font-family:"Roboto",sans-serif;
+  font-weight:500;
+  font-size:17px;
+  color:var(--md-on-surface);
+  margin:0 0 2px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.card-url{
+  font-size:12.5px;
+  color:var(--md-primary);
+  margin:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.card-desc{
+  font-size:13.5px;
+  line-height:1.5;
+  color:var(--md-on-surface-variant);
+  margin:0;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+
+.status{
+  text-align:center;
+  padding:60px 20px;
+  color:var(--md-on-surface-variant);
+  font-size:14px;
+}
+
+.status .dot{
+  width:8px; height:8px; border-radius:50%;
+  background:var(--md-primary);
+  display:inline-block;
+  margin-right:8px;
+  animation:pulse 1.1s ease-in-out infinite;
+}
+@keyframes pulse{
+  0%,100%{ opacity:1; transform:scale(1); }
+  50%{ opacity:.4; transform:scale(.7); }
+}
+
+.error-box{
+  text-align:center;
+  padding:40px 20px;
+  color:var(--md-on-surface-variant);
+  font-size:14px;
+  max-width:420px;
+  margin:0 auto;
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="app-icon">SL</div>
+    <span class="app-title">Sagnik Lab</span>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="hero">
+    <h1>Projects</h1>
+    <p class="tagline">A small collection of web tools. Pick one to open it.</p>
+  </div>
+
+  <div id="grid" class="grid"></div>
+  <div id="status" class="status"><span class="dot"></span>Loading projects…</div>
+</div>
+
+<script>
+const OWNER = "sagnik-lab";
+const REPO = "sagnik-lab.github.io";
+const API_BASE = `https://api.github.com/repos/${OWNER}/${REPO}`;
+const PAGES_BASE = `https://${OWNER}.github.io`;
+
+const GRID = document.getElementById("grid");
+const STATUS = document.getElementById("status");
+
+const IGNORE = new Set([".git", ".github", "node_modules", "assets", "CNAME"]);
+
+function escapeHtml(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function titleCase(slug) {
+  return slug
+    .replace(/[-_]+/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+async function fetchJSON(url) {
+  const res = await fetch(url, { headers: { "Accept": "application/vnd.github+json" } });
+  if (!res.ok) throw new Error(`${res.status}`);
+  return res.json();
+}
+
+async function getRootFolders() {
+  const items = await fetchJSON(`${API_BASE}/contents/`);
+  return items.filter((item) => item.type === "dir" && !IGNORE.has(item.name));
+}
+
+async function getSiteMeta(folderName) {
+  try {
+    const meta = await fetchJSON(`${API_BASE}/contents/${folderName}/site.json`);
+    const content = atob(meta.content.replace(/\n/g, ""));
+    const parsed = JSON.parse(content);
+    return {
+      title: parsed.title || titleCase(folderName),
+      description: parsed.description || "",
+      icon: parsed.icon || null,
+    };
+  } catch (e) {
+    return { title: titleCase(folderName), description: "", icon: null };
+  }
+}
+
+function renderCard(folderName, meta) {
+  const url = `${PAGES_BASE}/${folderName}/`;
+  const iconUrl = meta.icon ? `${PAGES_BASE}/${folderName}/${meta.icon}` : null;
+  const initial = meta.title.charAt(0).toUpperCase();
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.className = "card";
+  a.setAttribute("aria-label", meta.title);
+
+  const dpHtml = iconUrl
+    ? `<img class="dp" src="${escapeHtml(iconUrl)}" alt="" loading="lazy" onerror="this.outerHTML='<div class=&quot;dp-fallback&quot;>${initial}</div>'"/>`
+    : `<div class="dp-fallback">${initial}</div>`;
+
+  a.innerHTML = `
+    <div class="card-top">
+      ${dpHtml}
+      <div style="min-width:0;">
+        <p class="card-title">${escapeHtml(meta.title)}</p>
+        <p class="card-url">${escapeHtml(url.replace("https://", ""))}</p>
+      </div>
+    </div>
+    ${meta.description ? `<p class="card-desc">${escapeHtml(meta.description)}</p>` : ""}
+  `;
+
+  return a;
+}
+
+async function init() {
+  try {
+    const folders = await getRootFolders();
+
+    if (folders.length === 0) {
+      STATUS.innerHTML = "No projects found yet.";
+      return;
+    }
+
+    const metas = await Promise.all(
+      folders.map(async (f) => ({ name: f.name, meta: await getSiteMeta(f.name) }))
+    );
+
+    metas.sort((a, b) => a.meta.title.localeCompare(b.meta.title));
+
+    STATUS.style.display = "none";
+    for (const { name, meta } of metas) {
+      GRID.append(renderCard(name, meta));
+    }
+  } catch (err) {
+    STATUS.innerHTML = "";
+    const box = document.createElement("div");
+    box.className = "error-box";
+    box.textContent = "Couldn't load the project list right now. GitHub's API may be rate-limited — try refreshing in a minute.";
+    STATUS.append(box);
+  }
+}
+
+init();
+</script>
+
+</body>
+</html>
