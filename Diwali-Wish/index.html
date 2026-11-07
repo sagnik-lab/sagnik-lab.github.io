@@ -7,14 +7,15 @@
 <meta name="description" content="A Diwali wish, lit just for you.">
 <meta property="og:title" content="Diwali Wish">
 <meta property="og:description" content="A Diwali wish, lit just for you.">
-<meta property="og:image" content="og-image.png">
+<meta property="og:image" content="https://sagnik-lab.github.io/Diwali-Wish/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="1200">
+<meta property="og:image:alt" content="Happy Diwali - Festival of Lights">
 <meta property="og:type" content="website">
-<meta name="twitter:card" content="summary">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Diwali Wish">
 <meta name="twitter:description" content="A Diwali wish, lit just for you.">
-<meta name="twitter:image" content="og-image.png">
+<meta name="twitter:image" content="https://sagnik-lab.github.io/Diwali-Wish/og-image.png">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -78,11 +79,11 @@ a{-webkit-tap-highlight-color:transparent;}
 #app{position:relative; width:100%; height:100vh; height:100dvh; overflow:hidden;}
 .scene{
   position:absolute; inset:0;
-  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
   opacity:0; pointer-events:none;
   transform:scale(0.98);
   transition:opacity 0.7s cubic-bezier(0.22,1,0.36,1), transform 0.7s cubic-bezier(0.22,1,0.36,1);
-  padding:24px;
+  padding:24px 24px calc(104px + env(safe-area-inset-bottom,0px)) 24px;
   text-align:center;
   overflow-y:auto;
   -webkit-overflow-scrolling:touch;
@@ -106,7 +107,7 @@ a{-webkit-tap-highlight-color:transparent;}
 }
 canvas#stars, canvas#particles{position:absolute; inset:0; z-index:1; pointer-events:none;}
 
-.content{position:relative; z-index:5; width:100%; max-width:420px; animation:fadeUp 0.8s cubic-bezier(0.22,1,0.36,1) both;}
+.content{position:relative; z-index:5; width:100%; max-width:420px; margin:auto 0; animation:fadeUp 0.8s cubic-bezier(0.22,1,0.36,1) both;}
 
 .eyebrow{
   font-size:13px; letter-spacing:4px; text-transform:uppercase;
@@ -501,6 +502,7 @@ function goTo(name){
   document.querySelector('.scene[data-scene="'+name+'"]').classList.add('active');
   if(name==='rangoli') initRangoli();
   if(name==='fireworks') initFireworksListener();
+  if(name==='fireworks'||name==='form') startAutoFireworks(); else stopAutoFireworks();
 }
 
 /* ---------- DIYA LIGHTING ---------- */
@@ -723,24 +725,35 @@ function animateFireworks(){
 }
 fwRafId=requestAnimationFrame(animateFireworks);
 
+let fwAutoTimer=null;
+function fwSceneActive(){
+  const sc=document.querySelector('.scene.active');
+  return !!sc && (sc.dataset.scene==='fireworks' || sc.dataset.scene==='form');
+}
+function startAutoFireworks(){
+  if(fwAutoTimer) return;
+  const tick=()=>{
+    if(!fwSceneActive()){ fwAutoTimer=null; return; }
+    burstFirework(Math.random()*window.innerWidth, window.innerHeight*0.12+Math.random()*window.innerHeight*0.45);
+    fwAutoTimer=setTimeout(tick, 700+Math.random()*900);
+  };
+  fwAutoTimer=setTimeout(tick,400);
+}
+function stopAutoFireworks(){
+  clearTimeout(fwAutoTimer); fwAutoTimer=null;
+}
 function initFireworksListener(){
   if(fwListenerAdded) return;
   fwListenerAdded=true;
   const scene=document.querySelector('.scene[data-scene="fireworks"]');
   let lastBurst=0;
   scene.addEventListener('click', e=>{
+    if(e.target.closest('button,a,input,textarea,label')) return; // buttons never trigger a blast
     const now=performance.now();
     if(now-lastBurst<120) return;
     lastBurst=now;
     burstFirework(e.clientX, e.clientY);
   });
-  let autoCount=0;
-  const auto=setInterval(()=>{
-    if(!document.querySelector('.scene[data-scene="fireworks"]').classList.contains('active')){ clearInterval(auto); return; }
-    burstFirework(Math.random()*window.innerWidth, window.innerHeight*0.3+Math.random()*window.innerHeight*0.3);
-    autoCount++;
-    if(autoCount>5) clearInterval(auto);
-  },900);
 }
 
 /* ---------- WISH FORM ---------- */
@@ -781,6 +794,9 @@ function createWish(){
   document.getElementById('outTo').textContent='To '+to.value.trim();
   document.getElementById('outMsg').textContent=finalMsg;
   document.getElementById('outFrom').textContent='Warm wishes, '+from.value.trim();
+  stopAutoFireworks();
+  fwParticles=[];
+  fwCtx.clearRect(0,0,fwCanvas.width,fwCanvas.height);
   goTo('card');
 }
 [['toName','toNameErr'],['msgText','msgErr'],['fromName','fromNameErr']].forEach(([id,errId])=>{
