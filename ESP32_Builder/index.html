@@ -526,11 +526,10 @@ async function runBuild() {
       if (runsData.workflow_runs.length > 0) {
         log(`Latest run seen: #${runsData.workflow_runs[0].run_number}, created ${runsData.workflow_runs[0].created_at}, branch ${runsData.workflow_runs[0].head_branch}, event ${runsData.workflow_runs[0].event}`);
       }
-      // Widen the window to 60s before dispatch to absorb clock drift, and accept any event type
-      const candidate = runsData.workflow_runs.find(r =>
-        r.head_branch === branch &&
-        (new Date(r.created_at).getTime() >= dispatchMs - 60000)
-      );
+      // Match purely by time: the newest run created at/after dispatch (minus drift buffer)
+      const candidate = runsData.workflow_runs
+        .filter(r => new Date(r.created_at).getTime() >= dispatchMs - 60000)
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
       if (candidate) { run = candidate; break; }
       log('Still waiting for the run to register...');
     }
